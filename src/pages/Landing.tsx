@@ -90,10 +90,10 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 lg:py-32">
+      <section className="relative overflow-hidden py-4 lg:py-8">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="container mx-auto px-4">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-start">
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
@@ -168,6 +168,7 @@ const Landing = () => {
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">3 items low - Needs restocking</p>
                     </div>
+                    <img src="/hero.jpeg" alt="Low Stock Hero Image" className="w-full h-auto rounded-lg" />
 
                     <div className="grid grid-cols-4 gap-2 text-center text-xs">
                       {['Summary', "Today's Sales", "Yesterday's Sales", 'Sales by Employee'].map((tab) => (
@@ -292,7 +293,7 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary">
+      <section className="py-20 bg-slate-900">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-primary-foreground mb-4">
             Ready to Take Control of Your Inventory?

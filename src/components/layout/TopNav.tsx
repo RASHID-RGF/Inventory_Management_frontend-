@@ -12,6 +12,9 @@ import {
   User,
   ChevronDown,
   Menu,
+  Home,
+  Info,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -33,6 +36,7 @@ import {
 import { mockNotifications } from '@/lib/mockData';
 
 const menuItems = [
+  { icon: Home, label: 'Home', path: '/' },
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: Package, label: 'Inventory', path: '/inventory' },
   { icon: ShoppingCart, label: 'Sales', path: '/sales' },

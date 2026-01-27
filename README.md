@@ -1,73 +1,187 @@
-# Welcome to your Lovable project
+# StockKenya - Inventory Management System
 
-## Project info
+StockKenya is a modern, user-friendly inventory management platform designed specifically for Kenyan businesses. It helps shop owners, wholesalers, and retailers track stock levels, record sales, generate reports, and manage their operations efficiently.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+### 🏠 Landing Page
+- Attractive marketing page with feature highlights
+- Call-to-action buttons for easy access
+- Responsive design for all devices
 
-There are several ways of editing your application.
+### 📊 Dashboard
+- Overview of key metrics and statistics
+- Interactive charts for sales and inventory trends
+- Recent sales and top products cards
+- Real-time alerts for low stock and other notifications
 
-**Use Lovable**
+### 📦 Inventory Management
+- Add, edit, and delete inventory items
+- Track stock levels with automatic low-stock alerts
+- Category-based organization
+- Search and filter functionality
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 🛒 Sales Recording
+- Quick sales entry with product selection
+- Automatic inventory updates upon sale
+- Customer information tracking
+- Sales history and receipts
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📈 Reports & Analytics
+- Comprehensive sales reports
+- Profit and loss analysis
+- Inventory turnover reports
+- Custom date range filtering
+- Export capabilities
 
-**Use your preferred IDE**
+### 🔔 Notifications
+- Real-time alerts for low stock items
+- Sales milestones and achievements
+- System notifications and updates
+- Customizable alert preferences
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 👥 Admin Panel
+- User management and permissions
+- System configuration
+- Business settings and preferences
+- Data backup and export options
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### ⚙️ Settings
+- Business information management
+- User profile settings
+- Notification preferences
+- System customization options
 
-Follow these steps:
+### 📖 About & Blog
+- Company information and mission
+- Blog posts with industry insights
+- Educational content for business owners
+- Latest updates and features
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 🌙 Light/Dark Mode
+- Toggle between light and dark themes
+- Automatic system theme detection
+- Persistent theme preferences
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Technology Stack
 
-# Step 3: Install the necessary dependencies.
-npm i
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Routing**: React Router
+- **State Management**: React Query for server state
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **Theme**: next-themes for light/dark mode
+- **Deployment**: Ready for modern hosting platforms
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## Getting Started
+
+### Prerequisites
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd stock-sense-kenya
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build for Production
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The built files will be in the `dist` directory.
 
-## What technologies are used for this project?
+## Project Structure
 
-This project is built with:
+```
+src/
+├── components/
+│   ├── ui/          # Reusable UI components (shadcn/ui)
+│   ├── layout/      # Layout components (TopNav, DashboardLayout)
+│   └── dashboard/   # Dashboard-specific components
+├── pages/           # Page components
+├── hooks/           # Custom React hooks
+├── lib/             # Utilities and mock data
+└── App.tsx          # Main app component
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Key Components
 
-## How can I deploy this project?
+- **Landing**: Marketing homepage
+- **Dashboard**: Main dashboard with overview
+- **Inventory**: Inventory management interface
+- **Sales**: Sales recording and history
+- **Reports**: Analytics and reporting
+- **Notifications**: Alert management
+- **Admin**: Administrative functions
+- **Settings**: Configuration options
+- **About**: Company information
+- **Blog**: Educational content
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Features in Detail
 
-## Can I connect a custom domain to my Lovable project?
+### Inventory Tracking
+- Real-time stock level monitoring
+- Automatic reorder point calculations
+- Category and supplier management
+- Barcode integration ready
 
-Yes, you can!
+### Sales Management
+- Point-of-sale style interface
+- Customer tracking
+- Discount and tax calculations
+- Receipt generation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Reporting
+- Daily, weekly, monthly reports
+- Profit margin analysis
+- Inventory valuation
+- Sales trend analysis
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### User Experience
+- Responsive design for mobile and desktop
+- Intuitive navigation
+- Fast loading times
+- Accessible interface
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support and questions, please contact our team at support@stockkenya.com
+
+## Roadmap
+
+- Mobile app development
+- Multi-store management
+- Advanced analytics
+- Integration with popular POS systems
+- API for third-party integrations
