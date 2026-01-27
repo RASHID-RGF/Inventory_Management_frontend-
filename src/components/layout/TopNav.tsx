@@ -16,6 +16,7 @@ import {
   Info,
   BookOpen,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +100,9 @@ export const TopNav = () => {
                 className="w-48 pl-9 bg-background"
               />
             </div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* User Menu */}
             <DropdownMenu>

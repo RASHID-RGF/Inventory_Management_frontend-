@@ -321,7 +321,7 @@ const Landing = () => {
               <span className="font-semibold">StockKenya</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 StockKenya. Made with ❤️ for Kenyan businesses.
+              RAOQ1P9W
             </p>
           </div>
         </div>
