@@ -1,14 +1,17 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
   redirectTo?: string;
 }
 
-export const ProtectedRoute = ({ children, redirectTo = '/login' }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({
+  children,
+  redirectTo = "/login",
+}: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -28,4 +31,3 @@ export const ProtectedRoute = ({ children, redirectTo = '/login' }: ProtectedRou
 
   return <>{children}</>;
 };
-

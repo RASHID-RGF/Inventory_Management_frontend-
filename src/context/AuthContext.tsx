@@ -1,73 +1,86 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, onAuthChange, signInWithGoogle, logOut } from '@/lib/firebase';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import axios from "axios";
+
+interface User {
+  id: number;
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<User>;
-  logOut: () => Promise<void>;
   isAuthenticated: boolean;
+  signInWithGoogle: (idToken: string) => Promise<void>;
+  logOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
 
-interface AuthProviderProps {
+interface Props {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    // Restore tokens and user on refresh
+    const access = localStorage.getItem("access_token");
+    const userData = localStorage.getItem("user");
+    if (access && userData) setUser(JSON.parse(userData));
+    setLoading(false);
   }, []);
 
-  const handleSignInWithGoogle = async () => {
+  const signInWithGoogle = async (idToken: string) => {
     setLoading(true);
     try {
-      const result = await signInWithGoogle();
-      return result;
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth_app/google/`,
+        { id_token: idToken },
+        { headers: { "Content-Type": "application/json" } },
+      );
+
+      const { access, refresh, user } = res.data;
+
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setUser(user);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogOut = async () => {
-    setLoading(true);
-    try {
-      await logOut();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const value = {
-    user,
-    loading,
-    signInWithGoogle: handleSignInWithGoogle,
-    logOut: handleLogOut,
-    isAuthenticated: !!user,
+  const logOut = () => {
+    localStorage.clear();
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        signInWithGoogle,
+        logOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-
