@@ -29,22 +29,67 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Filter, Edit2, Trash2, Package } from 'lucide-react';
+import { Plus, Search, Filter, Edit2, Trash2, Package, Users, FolderPlus, Loader2 } from 'lucide-react';
 import {
   mockProducts,
-  categories,
-  suppliers,
+  categories as initialCategories,
+  suppliers as initialSuppliers,
   formatKES,
   getStockStatus,
   Product,
 } from '@/lib/mockData';
 import { cn } from '@/lib/utils';
+import { useCreateSupplier } from '@/hooks/useSuppliers';
 
 const Inventory = () => {
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddCategoryDialogOpen, setIsAddCategoryDialogOpen] = useState(false);
+  const [isAddSupplierDialogOpen, setIsAddSupplierDialogOpen] = useState(false);
+
+  // Dynamic state for categories and suppliers
+  const [categories, setCategories] = useState<string[]>(initialCategories);
+  const [suppliers, setSuppliers] = useState<string[]>(initialSuppliers);
+
+  // Form states
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newSupplier, setNewSupplier] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    contact_person: '',
+  });
+
+  const createSupplier = useCreateSupplier();
+
+  const handleAddCategory = () => {
+    if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
+      setCategories(prev => [...prev, newCategoryName.trim()]);
+      setNewCategoryName('');
+      setIsAddCategoryDialogOpen(false);
+    }
+  };
+
+  const handleAddSupplier = () => {
+    if (newSupplier.name.trim() && newSupplier.email.trim()) {
+      createSupplier.mutate(newSupplier, {
+        onSuccess: (data) => {
+          setSuppliers(prev => [...prev, data.name]);
+          setNewSupplier({
+            name: '',
+            email: '',
+            phone: '',
+            address: '',
+            contact_person: '',
+          });
+          setIsAddSupplierDialogOpen(false);
+        },
+      });
+    }
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
@@ -97,88 +142,237 @@ const Inventory = () => {
             </Select>
           </div>
 
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
-                <DialogDescription>
-                  Enter the product details below to add it to your inventory.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Product Name</Label>
-                  <Input id="name" placeholder="Enter product name" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="supplier">Supplier</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {suppliers.map((supplier) => (
-                          <SelectItem key={supplier} value={supplier}>
-                            {supplier}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="quantity">Quantity</Label>
-                    <Input id="quantity" type="number" placeholder="0" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="unitPrice">Unit Price (KES)</Label>
-                    <Input id="unitPrice" type="number" placeholder="0" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="minStock">Min Stock Level</Label>
-                    <Input id="minStock" type="number" placeholder="10" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="maxStock">Max Stock Level</Label>
-                    <Input id="maxStock" type="number" placeholder="100" />
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+          <div className="flex gap-2">
+            <Dialog open={isAddCategoryDialogOpen} onOpenChange={setIsAddCategoryDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <FolderPlus className="h-4 w-4" />
+                  Add Category
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(false)}>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Category</DialogTitle>
+                  <DialogDescription>
+                    Create a new product category for your inventory.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="categoryName">Category Name</Label>
+                    <Input
+                      id="categoryName"
+                      placeholder="e.g., Beverages, Electronics"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddCategoryDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddCategory}>Add Category</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAddSupplierDialogOpen} onOpenChange={setIsAddSupplierDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Users className="h-4 w-4" />
+                  Add Supplier
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Supplier</DialogTitle>
+                  <DialogDescription>
+                    Register a new supplier for your products.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="supplierName">Supplier Name</Label>
+                    <Input
+                      id="supplierName"
+                      placeholder="Enter supplier name"
+                      value={newSupplier.name}
+                      onChange={(e) =>
+                        setNewSupplier((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="supplierEmail">Email</Label>
+                      <Input
+                        id="supplierEmail"
+                        type="email"
+                        placeholder="email@example.com"
+                        value={newSupplier.email}
+                        onChange={(e) =>
+                          setNewSupplier((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="supplierPhone">Phone</Label>
+                      <Input
+                        id="supplierPhone"
+                        placeholder="+254 712 345 678"
+                        value={newSupplier.phone}
+                        onChange={(e) =>
+                          setNewSupplier((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="supplierAddress">Address</Label>
+                    <Input
+                      id="supplierAddress"
+                      placeholder="Enter address"
+                      value={newSupplier.address}
+                      onChange={(e) =>
+                        setNewSupplier((prev) => ({
+                          ...prev,
+                          address: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="contactPerson">Contact Person</Label>
+                    <Input
+                      id="contactPerson"
+                      placeholder="Enter contact person name"
+                      value={newSupplier.contact_person}
+                      onChange={(e) =>
+                        setNewSupplier((prev) => ({
+                          ...prev,
+                          contact_person: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddSupplierDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddSupplier}
+                    disabled={createSupplier.isPending}
+                    className="gap-2"
+                  >
+                    {createSupplier.isPending && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    Add Supplier
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
                   Add Product
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Product</DialogTitle>
+                  <DialogDescription>
+                    Enter the product details below to add it to your inventory.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Product Name</Label>
+                    <Input id="name" placeholder="Enter product name" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="supplier">Supplier</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {suppliers.map((supplier) => (
+                            <SelectItem key={supplier} value={supplier}>
+                              {supplier}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="quantity">Quantity</Label>
+                      <Input id="quantity" type="number" placeholder="0" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="unitPrice">Unit Price (KES)</Label>
+                      <Input id="unitPrice" type="number" placeholder="0" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="minStock">Min Stock Level</Label>
+                      <Input id="minStock" type="number" placeholder="10" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="maxStock">Max Stock Level</Label>
+                      <Input id="maxStock" type="number" placeholder="100" />
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setIsAddDialogOpen(false)}>
+                    Add Product
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Products Table */}

@@ -1,10 +1,8 @@
-// src/pages/Login.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Loader2, Store, LogIn } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
+import { Loader2, Store, LogIn, Chrome } from "lucide-react";
 import gearImage from "/gear.jpeg";
 
 const Login = () => {
@@ -20,17 +18,16 @@ const Login = () => {
   }, [isAuthenticated, navigate]);
 
   // Handler for Google login
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async () => {
     setError(null);
     setIsSigningIn(true);
     try {
-      await signInWithGoogle(credentialResponse.credential); // pass idToken
+      await signInWithGoogle();
       navigate("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Sign in error:", err);
-      setError(
-        err.message || "Failed to sign in with Google. Please try again.",
-      );
+      const errorMessage = err instanceof Error ? err.message : "Failed to sign in with Google. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsSigningIn(false);
     }
@@ -85,12 +82,14 @@ const Login = () => {
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : (
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap={false}
-                text="continue_with" // makes it say "Continue with Google"
-              />
+              <Button
+                onClick={handleGoogleSuccess}
+                variant="outline"
+                className="w-full h-12 text-base font-normal"
+              >
+                <Chrome className="h-5 w-5 mr-2" />
+                Continue with Google
+              </Button>
             )}
 
             <div className="relative">
@@ -198,3 +197,4 @@ const Login = () => {
 };
 
 export default Login;
+

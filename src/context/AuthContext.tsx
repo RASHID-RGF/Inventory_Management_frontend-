@@ -5,19 +5,20 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import axios from "axios";
-
-interface User {
-  id: number;
-  email: string;
-}
+import {
+  User,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { auth, googleProvider } from "@/lib/firebase";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  signInWithGoogle: (idToken: string) => Promise<void>;
-  logOut: () => void;
+  signInWithGoogle: () => Promise<void>;
+  logOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,37 +38,31 @@ export const AuthProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Restore tokens and user on refresh
-    const access = localStorage.getItem("access_token");
-    const userData = localStorage.getItem("user");
-    if (access && userData) setUser(JSON.parse(userData));
-    setLoading(false);
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const signInWithGoogle = async (idToken: string) => {
-    setLoading(true);
+  const signInWithGoogle = async () => {
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/auth_app/google/`,
-        { id_token: idToken },
-        { headers: { "Content-Type": "application/json" } },
-      );
-
-      const { access, refresh, user } = res.data;
-
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setUser(user);
-    } finally {
-      setLoading(false);
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+      throw error;
     }
   };
 
-  const logOut = () => {
-    localStorage.clear();
-    setUser(null);
+  const logOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
   };
 
   return (
@@ -84,3 +79,4 @@ export const AuthProvider = ({ children }: Props) => {
     </AuthContext.Provider>
   );
 };
+

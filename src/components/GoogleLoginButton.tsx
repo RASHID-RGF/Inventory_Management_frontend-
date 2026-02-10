@@ -1,27 +1,33 @@
-import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Chrome } from "lucide-react";
 
 export const GoogleLoginButton = () => {
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuccess = async (credentialResponse: any) => {
+  const handleSignIn = async () => {
     try {
-      const idToken = credentialResponse.credential;
-      await signInWithGoogle(idToken);
+      await signInWithGoogle();
       navigate("/dashboard"); // redirect immediately after login
     } catch (err) {
       console.error("Google login failed", err);
-      alert("Login failed. Try again.");
+      alert("Login failed. Please try again.");
     }
   };
 
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={() => console.error("Google Sign In Error")}
-      useOneTap={false}
-    />
+    <Button
+      onClick={handleSignIn}
+      variant="outline"
+      className="w-full h-12 text-base font-normal"
+    >
+      <Chrome className="h-5 w-5 mr-2" />
+      Continue with Google
+    </Button>
   );
 };
+
+export default GoogleLoginButton;
+
