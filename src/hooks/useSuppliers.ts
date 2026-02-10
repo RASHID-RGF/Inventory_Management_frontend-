@@ -2,23 +2,29 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8080";
+// Use environment variable or null for production (no backend)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const suppliersApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/business`,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// Only create axios instance if API_URL is configured
+const suppliersApi = API_BASE_URL
+  ? axios.create({
+      baseURL: `${API_BASE_URL}/api/business`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  : null;
 
 // Add auth token to requests
-suppliersApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+if (suppliersApi) {
+  suppliersApi.interceptors.request.use((config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+}
 
 const handleApiError = (error: unknown, defaultMessage: string) => {
   if (axios.isAxiosError(error)) {
@@ -63,10 +69,14 @@ export const useSuppliers = () => {
   return useQuery<Supplier[]>({
     queryKey: ["suppliers"],
     queryFn: async () => {
+      if (!suppliersApi) {
+        throw new Error("API not configured");
+      }
       const response = await suppliersApi.get<Supplier[]>("/suppliers/");
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    enabled: !!suppliersApi,
   });
 };
 
@@ -75,10 +85,13 @@ export const useSupplier = (id: number) => {
   return useQuery<Supplier>({
     queryKey: ["supplier", id],
     queryFn: async () => {
+      if (!suppliersApi) {
+        throw new Error("API not configured");
+      }
       const response = await suppliersApi.get<Supplier>(`/suppliers/${id}/`);
       return response.data;
     },
-    enabled: !!id,
+    enabled: !!id && !!suppliersApi,
   });
 };
 
@@ -88,6 +101,9 @@ export const useCreateSupplier = () => {
 
   return useMutation<Supplier, unknown, SupplierCreate>({
     mutationFn: async (data: SupplierCreate) => {
+      if (!suppliersApi) {
+        throw new Error("API not configured");
+      }
       const response = await suppliersApi.post<Supplier>("/suppliers/", data);
       return response.data;
     },
@@ -107,6 +123,9 @@ export const useUpdateSupplier = () => {
 
   return useMutation<Supplier, unknown, { id: number; data: SupplierUpdate }>({
     mutationFn: async ({ id, data }: { id: number; data: SupplierUpdate }) => {
+      if (!suppliersApi) {
+        throw new Error("API not configured");
+      }
       const response = await suppliersApi.patch<Supplier>(`/suppliers/${id}/`, data);
       return response.data;
     },
@@ -127,6 +146,9 @@ export const useDeleteSupplier = () => {
 
   return useMutation<void, unknown, number>({
     mutationFn: async (id: number) => {
+      if (!suppliersApi) {
+        throw new Error("API not configured");
+      }
       await suppliersApi.delete(`/suppliers/${id}/`);
     },
     onSuccess: () => {

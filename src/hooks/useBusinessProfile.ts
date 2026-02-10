@@ -4,23 +4,29 @@ import { BusinessProfile, BusinessProfileUpdate } from "@/types/business";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8080";
+// Use environment variable or null for production (no backend)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const businessApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/business`,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// Only create axios instance if API_URL is configured
+const businessApi = API_BASE_URL
+  ? axios.create({
+      baseURL: `${API_BASE_URL}/api/business`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  : null;
 
 // Add auth token to requests
-businessApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+if (businessApi) {
+  businessApi.interceptors.request.use((config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+}
 
 const handleApiError = (error: unknown, defaultMessage: string) => {
   if (axios.isAxiosError(error)) {
@@ -39,11 +45,14 @@ export const useBusinessProfile = () => {
   return useQuery<BusinessProfile>({
     queryKey: ["businessProfile"],
     queryFn: async () => {
+      if (!businessApi) {
+        throw new Error("API not configured");
+      }
       const response = await businessApi.get<BusinessProfile>("/profile/");
       return response.data;
     },
-    enabled: isAuthenticated,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: isAuthenticated && !!businessApi,
+    staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 };
@@ -54,6 +63,9 @@ export const useUpdateBusinessProfile = () => {
 
   return useMutation<BusinessProfile, unknown, BusinessProfileUpdate>({
     mutationFn: async (data: BusinessProfileUpdate) => {
+      if (!businessApi) {
+        throw new Error("API not configured");
+      }
       const response = await businessApi.patch<BusinessProfile>("/profile/", data);
       return response.data;
     },
@@ -73,6 +85,9 @@ export const useCreateBusinessProfile = () => {
 
   return useMutation<BusinessProfile, unknown, BusinessProfile>({
     mutationFn: async (data: BusinessProfile) => {
+      if (!businessApi) {
+        throw new Error("API not configured");
+      }
       const response = await businessApi.post<BusinessProfile>("/profile/", data);
       return response.data;
     },
@@ -100,11 +115,14 @@ export const useBusinessStats = () => {
   return useQuery<BusinessStats>({
     queryKey: ["businessStats"],
     queryFn: async () => {
+      if (!businessApi) {
+        throw new Error("API not configured");
+      }
       const response = await businessApi.get<BusinessStats>("/stats/");
       return response.data;
     },
-    enabled: isAuthenticated,
-    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    enabled: isAuthenticated && !!businessApi,
+    staleTime: 2 * 60 * 1000,
   });
 };
 
